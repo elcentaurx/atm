@@ -20,10 +20,17 @@ defmodule AtmAppWeb.Router do
     get "/", PageController, :index
   end
 
+
   # Other scopes may use custom stacks.
-  # scope "/api", AtmAppWeb do
-  #   pipe_through :api
-  # end
+  scope "/api", AtmAppWeb do
+    pipe_through :api
+
+    post "/create", UserAtmController, :create
+    put "/update", UserAtmController, :update
+    #get "/balance", UserAtmController, :balance
+    delete "/delete", UserAtmController, :delete
+
+  end
 
   # Enables LiveDashboard only for development
   #

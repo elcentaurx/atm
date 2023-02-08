@@ -5,7 +5,7 @@ config :atm_app, AtmApp.Repo,
   username: "postgres",
   password: "postgres",
   hostname: "localhost",
-  database: "atm_app_dev",
+  database: "atm_app_test",
   stacktrace: true,
   show_sensitive_data_on_connection_error: true,
   pool_size: 10
