@@ -108,4 +108,8 @@ defmodule AtmApp.User do
     BalanceQuery.get_balance(id) |> Repo.one()
   end
 
+  # def get_user_by_nickname(nickname) do
+  #   BalanceQuery.get_balance(nickname) |> Repo.one
+  # end
+
 end
