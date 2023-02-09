@@ -26,7 +26,7 @@ defmodule AtmAppWeb.Router do
     pipe_through :api
 
     get "/index", UserAtmController, :index
-    get "/show", UserAtmController, :show
+    # get "/show", UserAtmController, :show
     get "/founds", UserAtmController, :get_founds
     post "/create", UserAtmController, :create
     put "/update", UserAtmController, :update

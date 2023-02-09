@@ -6,16 +6,18 @@ defmodule AtmAppWeb.UserAtmController do
 
   def index(conn, _params) do
     user_atm = User.list_user_atm()
-    json put_status(conn, :ok),  %{users: user_atm
-    |> Enum.map(fn f -> %{}
-      |> Map.put(:id, f.id)
-      |> Map.put(:nick_name, f.nick_name)
-      |> Map.put(:balance, f.balance)
-      |> Map.put(:inserted_at, f.inserted_at)
-      |> Map.put(:updated_at, f.updated_at)
-    end)}
-
-
+    case user_atm do
+      [] -> json put_status(conn, :ok),  %{users: []}
+        _ ->
+          json put_status(conn, :ok),  %{users: user_atm
+            |> Enum.map(fn f -> %{}
+            |> Map.put(:id, f.id)
+            |> Map.put(:nick_name, f.nick_name)
+            |> Map.put(:balance, f.balance)
+            |> Map.put(:inserted_at, f.inserted_at)
+            |> Map.put(:updated_at, f.updated_at)
+        end)}
+    end
   end
 
   def new(conn, _params) do
@@ -45,45 +47,65 @@ defmodule AtmAppWeb.UserAtmController do
   end
 
   def update(conn, %{"id" => id, "user_atm" => user_atm_params, "type" => type}) do
-    user_atm = User.get_user_atm!(id)
-     if(type == 0) do
-      validate_quantity(user_atm.balance, user_atm_params["balance"]) |> case do
-        true ->
-          User.update_user_atm(user_atm, user_atm_params |> Map.put("balance", user_atm.balance - abs(user_atm_params["balance"])))
-          |> case do
-            {:ok, _atm_user} ->
-              json put_status(conn, :ok), %{"message" => "balance updated successfully" }
-            {:error, %Ecto.Changeset{} = changeset} ->
-              json put_status(conn, :error), %{"message" => "#{inspect(changeset.errors)}" }
-          end
-          _->
-            json put_status(conn, :ok), %{"message" => "it is not possible to perform the operation" }
-      end
-     else
-      User.update_user_atm(user_atm, user_atm_params |> Map.put("balance", user_atm.balance + abs(user_atm_params["balance"])))
-      |> case do
-        {:ok, _atm_user} ->
-          json put_status(conn, :ok), %{"message" => "balance updated successfully" }
-        {:error, %Ecto.Changeset{} = changeset} ->
-          json put_status(conn, :error), %{"message" => "#{inspect(changeset.errors)}" }
+    try do
+      user_atm = User.get_user_atm!(id)
+      if(type == 0) do
+       validate_quantity(user_atm.balance, user_atm_params["balance"]) |> case do
+         true ->
+           User.update_user_atm(user_atm, user_atm_params |> Map.put("balance", user_atm.balance - abs(user_atm_params["balance"])))
+           |> case do
+             {:ok, _atm_user} ->
+               json put_status(conn, :ok), %{"message" => "balance updated successfully" }
+             {:error, %Ecto.Changeset{} = changeset} ->
+               json put_status(conn, :error), %{"message" => "#{inspect(changeset.errors)}" }
+           end
+           _->
+             json put_status(conn, :ok), %{"message" => "it is not possible to perform the operation" }
        end
+      else
+       User.update_user_atm(user_atm, user_atm_params |> Map.put("balance", user_atm.balance + abs(user_atm_params["balance"])))
+       |> case do
+         {:ok, _atm_user} ->
+           json put_status(conn, :ok), %{"message" => "balance updated successfully" }
+         {:error, %Ecto.Changeset{} = changeset} ->
+           json put_status(conn, :error), %{"message" => "#{inspect(changeset.errors)}" }
+        end
+     end
+    rescue
+      Ecto.NoResultsError ->
+        render_json(%{"message" => "No result found"}, conn, 404)
     end
-
   end
 
   def delete(conn, %{"id" => id}) do
-    user_atm = User.get_user_atm!(id)
-    case User.delete_user_atm(user_atm) do
-      {:ok, _atm_user} ->
-        json put_status(conn, :ok), %{"message" => "user deleted successfully" }
-      {:error, %Ecto.Changeset{} = changeset} ->
-        json put_status(conn, :error), %{"message" => "#{inspect(changeset.errors)}" }
+    try do
+      user_atm = User.get_user_atm!(id)
+      case User.delete_user_atm(user_atm) do
+        {:ok, _atm_user} ->
+          json put_status(conn, :ok), %{"message" => "user deleted successfully" }
+        {:error, %Ecto.Changeset{} = changeset} ->
+          json put_status(conn, :error), %{"message" => "#{inspect(changeset.errors)}" }
+      end
+    rescue
+      Ecto.NoResultsError ->
+        render_json(%{"message" => "No result found"}, conn, 404)
     end
   end
 
-  def get_founds(conn, %{"id" => id}) do
-    user_atm = User.get_user_atm!(id)
-    json put_status(conn, :ok), %{"message" => user_atm }
+  def get_founds(conn, _) do
+    id = conn.query_params |> Map.get("id")
+    case id do
+      nil -> json put_status(conn, :ok), %{"message" => "user_not found" }
+      _ ->
+        try do
+          user = User.get_user_atm!(id)
+            render_json(%{"balance" => user.balance}, conn, 200)
+        rescue
+          Ecto.NoResultsError ->
+            render_json(%{"message" => "No result found"}, conn, 404)
+        end
+
+    end
   end
 
   def render_json(response, conn, status) do
@@ -97,7 +119,6 @@ defmodule AtmAppWeb.UserAtmController do
       else
         false
       end
-
   end
 
 end
