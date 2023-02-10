@@ -164,7 +164,7 @@ defmodule AtmAppWeb.UserAtmController do
   end
 
 
-  @doc """
+    @doc """
    Get balance of user.
 
   ## Api use
@@ -175,8 +175,7 @@ defmodule AtmAppWeb.UserAtmController do
 
     Gets the balance of a user, it is necessary to send the id of the user as query_params .
     returns balance if the query was successful and an error if it was not
-
-  """
+    """
 
   def get_founds(conn, _) do
     id = conn.query_params |> Map.get("id")
@@ -204,7 +203,7 @@ defmodule AtmAppWeb.UserAtmController do
      iex> validate_quantity(number_1, number_2)
 
     Function that returns true if the result of the subtraction of a number minus the absolute of the other number is greater than zero
-  """
+    """
   def validate_quantity(actual_balance, value) do
     aux = actual_balance - abs(value)
       if(aux > 0) do
