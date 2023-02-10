@@ -7,6 +7,9 @@ defmodule AtmApp.Repo.Migrations.CreateUserAtm do
       add :balance, :float
 
       timestamps()
+
     end
+    create unique_index(:user_atm, [:nick_name])
   end
+
 end

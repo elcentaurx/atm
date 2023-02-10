@@ -1,4 +1,5 @@
 defmodule AtmAppWeb.Router do
+  use Plug.ErrorHandler
   use AtmAppWeb, :router
 
   pipeline :browser do
@@ -26,12 +27,23 @@ defmodule AtmAppWeb.Router do
     pipe_through :api
 
     get "/index", UserAtmController, :index
-    # get "/show", UserAtmController, :show
-    get "/founds", UserAtmController, :get_founds
+    get "/founds/:id", UserAtmController, :get_founds
     post "/create", UserAtmController, :create
     put "/update", UserAtmController, :update
     delete "/delete", UserAtmController, :delete
 
+  end
+
+  @impl Plug.ErrorHandler
+  def handle_errors(conn, %{kind: _kind, reason: _reason, stack: _stack}) do
+    if(conn.status >= 500) do
+      render_json(%{"error" => "It seems that we have problems, we are working to solve it"}, conn, conn.status)
+    end
+    render_json(%{"error" => "We couldn't find what you were looking for or you don't have permission to see it."}, conn, conn.status)
+  end
+
+  def render_json(response, conn, status) do
+    json put_status(conn, status), response
   end
 
   # Enables LiveDashboard only for development
