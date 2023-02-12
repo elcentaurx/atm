@@ -177,8 +177,7 @@ defmodule AtmAppWeb.UserAtmController do
     returns balance if the query was successful and an error if it was not
   """
 
-  def get_founds(conn, _) do
-    id = conn.query_params |> Map.get("id")
+  def get_founds(conn, %{"id" => id}) do
     case id do
       nil ->  render_json(%{"error" => "user_not found"}, conn, conn.status)
       _ ->
