@@ -169,7 +169,7 @@ defmodule AtmAppWeb.UserAtmController do
 
   ## Api use
 
-    GET /api/founds?id=10 HTTP/1.1
+    GET /api/founds/:id HTTP/1.1
     Content-Type: application/json
     Host: localhost:4000
 
